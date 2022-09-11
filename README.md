@@ -1,29 +1,105 @@
-# Detrive: Imitation Learning with Transformer Detection for End-to-End Autonomous Driving
-
-## Abstract
-
-### On-policy training paradigm
-
-The project is working in a simulator called [carla](https://carla.org/). To exploit the simulated driving enviroment, this project uses a cheated RL expert to train a IL agent. The RL expert can get access to a bird-eye-view (bev) map of the groud truth dynamic world. It is also provided with other necessary inputs like the current speed, and navigational command. The export is trained by a standard ppo algorithm in the carla [NoCrash](https://arxiv.org/abs/1904.08980) benchmark's training maps. This RL expert, compared to other experts, like human expert or a hand craft rule based expert, is not only saving human effort, but also providing a stronger on-policy supervision for the IL agent. The system overview is shown in the following figure. 
-
-<p align="center">
-  <img width="66%" src="./assets/RL_dagger.png">
-</p>
-
-### IL model architechture
-
-The IL model is an end-to-end neural network structure, which can be spilted into three major modules, perception, planning, and conrtol. The structure overview is shown in the following figure.
-
-![Simplifed architechture](./assets/IL_agent_overview.png)
-
-The perception module uses a [DETR-like](https://arxiv.org/abs/2005.12872) architecture to detect major traffic participants like cars, truck, pedestrians. In the percepyion module, the camera inputs are processed by a backbone net to extract features. Then, the feature map and a positional encoding are added together to be fed into a transformer encoder-decoder network to generate latent object detection code. The following figure shows the robustness of the perception module.
-
-![](./assets/output.png)
-
-For planning, the perception outputs together with other sensors' inputs will then be fed into a mlp for dimensional transformation. Then a [105, 64] tensor feature will be the hidden layer of GRU cells, and a [105, 2] tensor of goal poit will be the input. The output of the planning module is k way points, where k depends on the number of GRU cells. 
-
-The last module the control module, which is simply two PID controllers for generating longitudinal and lateral control, ie steer of [-1, 1] for left and right turn, velocity of [-1, 1] for the throttle and brack actions.
+# Detrive
+> Imitation Learning with Transformer Detection for End-to-End Autonomous Driving
+> Msc Robotics dissertation from the University of Bristol by Daoming Chen
 
 ![IL model architechture](./assets/Architechture.png)
 
+## Introduction
 
+[![](./assets/video.jpg)](https://youtu.be/xl-nB0iC57k)
+
+Detrive uses a [DETR](https://github.com/facebookresearch/detr) liked structure as its perception network to obtain the objects' label and bounding box. I designed two forms of feature fusion network for this model. They are Detrive-I and Detrive-II (or Detrive-res)
+
+Detrive-I:
+
+![](./assets/fusion.png)
+
+Detrive-II:
+![](./assets/fusion2.png)
+
+After feature fusion, a GRU-RNN is used to generate some way points for path planning.
+
+![](./assets/gru.png)
+
+## Get Started
+
+### Setup
+
+Git clone this repo:
+```
+git clone https://github.com/Alexbeast-CN/Detrive.git
+cd Detrive
+conda env create -f environment.yml
+```
+
+Get your Carla0.9.10.1 ready. 
+```
+mkdir carla
+cd carla
+wget https://carla-releases.s3.eu-west-3.amazonaws.com/Linux/CARLA_0.9.10.1.tar.gz
+wget https://carla-releases.s3.eu-west-3.amazonaws.com/Linux/AdditionalMaps_0.9.10.1.tar.gz
+tar -xf CARLA_0.9.10.1.tar.gz
+tar -xf AdditionalMaps_0.9.10.1.tar.gz
+rm CARLA_0.9.10.1.tar.gz
+rm AdditionalMaps_0.9.10.1.tar.gz
+cd ..
+```
+
+Get pre-trained models:
+
+```
+mkdir model_ckpt || cd model_ckpt
+# For Detrive:
+mkdir detrive || cd detrive
+wget https://drive.google.com/file/d/1If662NkR6o5hoDGGyZEewcl2wKzMKym2/view?usp=sharing
+# For Detrive-res:
+cd ..
+mkdir detrive-res || cd detrive-res
+wget https://drive.google.com/file/d/1pHGNiAjnbKKINZBW75mLMm_LD3LuLQ2y/view?usp=sharing
+```
+
+### Evaluation
+
+Open the Carla server first by using:
+
+```
+<Path to carla>/CarlaUE4.sh -quality-level=Epic -world-port=2000 -resx=800 -resy=600 -opengl
+```
+
+Run the evaluation:
+
+```
+CUDA_VISIBLE_DEVICES=0 ./leaderboard/scripts/run_evaluation.sh
+```
+
+### Train
+
+It's recommended to use [Roach](https://github.com/zhejz/carla-roach) to train the model. But other methods are also accepted. It's easy to use pre-collected dataset for trainning. A recommended dataset is the one provided by the [transfuser group](https://github.com/autonomousvision/transfuser/blob/cvpr2021/download_data.sh)
+
+run download_data.sh
+
+```
+chmod +x download_data.sh
+./download_data.sh
+```
+
+run the train.py
+
+```
+cd <to the path of the model>
+python3 train.py
+```
+
+## Benchmark
+
+|Model                 |Driving score|Route completion|Infraction penalty|Collisions pedestrians|Collisions vehicles|Collisions layout|Red light infractions|Stop sign infractions|Off-road infractions|Route deviations|Route timeouts|Agent blocked|
+|----------------------|-------------|----------------|------------------|----------------------|-------------------|-----------------|---------------------|---------------------|--------------------|----------------|--------------|-------------|
+|Detrive-II            |34.49        |67.37           |0.59              |0                     |0.32               |0.49             |0.78                 |0.15                 |0.45                |0               |0.03          |1.32         |
+|Detrive-I             |15.17        |39.82           |0.47              |0                     |0.98               |2.93             |0.62                 |0.07                 |3.2                 |0               |0             |2.44         |
+|LBC (CoRL 2019)       |8.94         |17.54           |0.73              |0                     |0.4                |1.16             |0.71                 |0                    |1.52                |0.03            |0             |4.69         |
+|CILRS (ICCV 2019)     |5.37         |14.4            |0.55              |2.69                  |1.48               |2.35             |1.62                 |0                    |4.55                |4.14            |0             |4.28         |
+|TransFuser (CVPR 2021)|16.93        |51.82           |0.42              |0.91                  |1.09               |0.19             |1.26                 |0                    |0.57                |0               |0.01          |1.96         |
+
+## License
+
+All code within this repository is under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
