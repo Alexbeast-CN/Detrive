@@ -11,15 +11,15 @@
 Detrive uses a [DETR](https://github.com/facebookresearch/detr) liked structure as its perception network to obtain the objects' label and bounding box. I designed two forms of feature fusion network for this model. They are Detrive-I and Detrive-II (or Detrive-res)
 
 Detrive-I:
-
-![](./assets/fusion.png)
+<img src="./assets/fusion.png" align="center" width="85%">
 
 Detrive-II:
-![](./assets/fusion2.png)
+<img src="./assets/fusion2.png" align="center" width="85%">
+
 
 After feature fusion, a GRU-RNN is used to generate some way points for path planning.
 
-![](./assets/gru.png)
+<img src="./assets/gru.png" align="center" width="66%">
 
 ## Get Started
 
