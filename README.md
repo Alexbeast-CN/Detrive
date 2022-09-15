@@ -6,6 +6,8 @@
 
 ## Introduction
 
+> Click the picture to play the video on youtube.
+
 [![](./assets/video.jpg)](https://youtu.be/xl-nB0iC57k)
 
 Detrive uses a [DETR](https://github.com/facebookresearch/detr) liked structure as its perception network to obtain the objects' label and bounding box. I designed two forms of feature fusion network for this model. They are Detrive-I and Detrive-II (or Detrive-res)
@@ -38,7 +40,7 @@ cd Detrive
 conda env create -f environment.yml
 ```
 
-Get your Carla0.9.10.1 ready. 
+Get your Carla 0.9.10.1 ready. 
 ```
 mkdir carla
 cd carla
@@ -54,13 +56,18 @@ cd ..
 Get pre-trained models:
 
 ```
-mkdir model_ckpt || cd model_ckpt
-# For Detrive:
-mkdir detrive || cd detrive
+mkdir model_ckpt && cd model_ckpt
+```
+
+- For Detrive:
+```
+mkdir detrive && cd detrive
 wget https://drive.google.com/file/d/1If662NkR6o5hoDGGyZEewcl2wKzMKym2/view?usp=sharing
-# For Detrive-res:
-cd ..
-mkdir detrive-res || cd detrive-res
+```
+
+- For Detrive-res:
+```
+mkdir detrive-res && cd detrive-res
 wget https://drive.google.com/file/d/1pHGNiAjnbKKINZBW75mLMm_LD3LuLQ2y/view?usp=sharing
 ```
 
