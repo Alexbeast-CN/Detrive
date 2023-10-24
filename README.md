@@ -118,3 +118,16 @@ python3 train.py
 ## License
 
 All code within this repository is under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+
+## Citation
+
+```
+@misc{chen2023detrive,
+      title={Detrive: Imitation Learning with Transformer Detection for End-to-End Autonomous Driving}, 
+      author={Daoming Chen and Ning Wang and Feng Chen and Tony Pipe},
+      year={2023},
+      eprint={2310.14224},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO}
+}
+```
