@@ -1,6 +1,8 @@
 # Detrive
 
-[Detrive: Imitation Learning with Transformer Detection for End-to-End Autonomous Driving](https://arxiv.org/abs/2310.14224) won the best paper award in the World Symposium on Digital Intelligence for Systems and Machines (DISA2023)
+**Detrive: Imitation Learning with Transformer Detection for End-to-End Autonomous Driving** won the best paper award in the World Symposium on Digital Intelligence for Systems and Machines (DISA2023)
+
+> [Arxiv link]((https://arxiv.org/abs/2310.14224)) for the paper
 
 ![IL model architechture](./assets/Architechture.png)
 
